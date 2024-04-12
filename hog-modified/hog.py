@@ -1,4 +1,5 @@
 """The Game of Hog."""
+from random import randint
 
 from dice import six_sided, make_test_dice
 from ucb import main, trace, interact
@@ -320,7 +321,6 @@ def run_experiments():
     "*** You may add additional experiments as you wish ***"
 
 
-
 def boar_strategy(score, opponent_score, threshold=11, num_rolls=6):
     """This strategy returns 0 dice if Boar Brawl gives at least THRESHOLD
     points, and returns NUM_ROLLS otherwise. Ignore score and Sus Fuss.
@@ -337,13 +337,28 @@ def sus_strategy(score, opponent_score, threshold=11, num_rolls=6):
     # END PROBLEM 11
 
 
-def final_strategy(score, opponent_score):
-    """Write a brief description of your final strategy.
-
-    *** YOUR DESCRIPTION HERE ***
+def final_strategy(score, opponent_score, threshold=11, num_rolls=6, goal=GOAL, dice=six_sided):
+    """
+    1. If sus_strategy returns 0, then we choose 0 as our strategy.
+    2. If you know the goal score (by default it is 100), there's no benefit to scoring more than the goal.
+    Check whether you can win by rolling 0, 1 or 2 dice.
+    3. Instead of using a threshold, roll 0 whenever it would give you more points on average than rolling 6.
+    4. If you are in the lead, you might decide to take fewer risks.
     """
     # BEGIN PROBLEM 12
-    return 6  # Remove this line once implemented.
+    if not sus_strategy(score, opponent_score, threshold, num_rolls):
+        return 0
+    if sus_points(score) >= GOAL:
+        return 0
+    averaged_dice = make_averaged(roll_dice, 20)
+    for i in range(1, 3):
+        if score + averaged_dice(i, dice) >= GOAL:
+            return i
+    if sus_points(score) - score >= averaged_dice(num_rolls, dice):
+        return 0
+    if score - opponent_score >= 25:
+        return randint(0, 2)
+    return num_rolls
     # END PROBLEM 12
 
 
