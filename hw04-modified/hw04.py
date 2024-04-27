@@ -167,14 +167,14 @@ def max_path_sum(t):
     "*** YOUR CODE HERE ***"
     max_sum = 0
 
-    def max_path_sum_helper(t, current_sum):
-        if is_leaf(t):
-            current_sum += label(t)
+    def max_path_sum_helper(root, current_sum):
+        if is_leaf(root):
+            current_sum += label(root)
             nonlocal max_sum
             max_sum = max(max_sum, current_sum)
         else:
-            for i in range(len(branches(t))):
-                max_path_sum_helper(branches(t)[i], current_sum + label(t))
+            for i in range(len(branches(root))):
+                max_path_sum_helper(branches(root)[i], current_sum + label(root))
 
     max_path_sum_helper(t, 0)
     return max_sum
