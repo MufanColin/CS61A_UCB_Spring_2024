@@ -274,7 +274,7 @@ class FireAnt(Ant):
         """
         # BEGIN Problem 5
         "*** YOUR CODE HERE ***"
-        place_copy, bees_copy = self.place, self.place.bees[:]  # When the FireAnt dies, we can no longer track self.place, thus we need to make a copy first.
+        bees_copy = self.place.bees[:]  # When the FireAnt dies, we can no longer track self.place, thus we need to make a copy first.
         super().reduce_health(amount)
         reflective_damage = amount + self.damage if self.health <= 0 else amount
         for bee in bees_copy:
@@ -513,8 +513,8 @@ class LaserAnt(ThrowerAnt):
     food_cost = 10
     # OVERRIDE CLASS ATTRIBUTES HERE
     # BEGIN Problem Optional 2
-    implemented = False  # Change to True to view in the GUI
-
+    implemented = True   # Change to True to view in the GUI
+    basic_damage = 2
     # END Problem Optional 2
 
     def __init__(self, health=1):
@@ -523,12 +523,28 @@ class LaserAnt(ThrowerAnt):
 
     def insects_in_front(self):
         # BEGIN Problem Optional 2
-        return {}
+        # I referenced some code from GitHub, especially https://github.com/cy-Yin/UCBerkeley-CS61A-Fall2023/blob/main/Projects/03_ants/ants.py.
+        insects_dict = {}
+        distance = 0
+        current_place = self.place
+        while not current_place.is_hive:
+            for bee in current_place.bees:
+                insects_dict[bee] = distance
+            if current_place.ant and current_place.ant != self:
+                if current_place.ant.is_container and current_place.ant.ant_contained:
+                    insects_dict[current_place.ant.ant_contained] = distance
+                insects_dict[current_place.ant] = distance
+            distance = distance + 1
+
+            current_place = current_place.entrance
+
+        return insects_dict
         # END Problem Optional 2
 
     def calculate_damage(self, distance):
         # BEGIN Problem Optional 2
-        return 0
+        current_damage = max(0.0, self.basic_damage - distance * 0.25 - self.insects_shot * 0.0625)
+        return current_damage
         # END Problem Optional 2
 
     def action(self, gamestate):
